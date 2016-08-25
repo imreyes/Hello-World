@@ -1,0 +1,49 @@
+from math import sqrt
+def PrimeDivisorProduct(num):                     #Break down num into prime numbers.
+    n=num
+    mtpelement=[]
+    Order=0
+    while n%2==0:                                 #Divide by 2 first, in order to increase efficiency.
+        n=n/2
+        mtpelement.append(2)
+    divider=3                                     #Then divide by 3,5,7... when not dividable, go with the next.
+    while divider<=sqrt(n):
+        while n%divider==0:
+            n=n/divider
+            mtpelement.append(divider)            #Write all prime divisors into the list mtpelement.
+        divider=divider+2
+    if n>1:
+        mtpelement.append(int(n))                 #Write the last divisor (not 1) into list.
+    return mtpelement
+    
+    
+    
+def PrintProduct(num):                      #Print multiplication formula of all prime divisors product to num. If num is prime, print itself.
+    Product=PrimeDivisorProduct(num)
+    if Product[0]==num:
+        print(num,"is a prime.")
+    else:
+        print(num,"=",Product[0],end='')
+        for i in Product[1:]:
+            print(" *",i,end='')
+
+
+
+def SortDivisors(num):                          #Categorize the prime divisors of num as prime^time, e.g. 12 as 2^2 and 3^1. Return a dict.
+    Product=PrimeDivisorProduct(num)
+    PrimeDivisorSet=set(Product)
+    PrimeDivisorDict=dict()
+    for Primenum in PrimeDivisorSet:            #Put data into dictionary: divisor as key, exponent as value.
+        PrimeDivisorDict[Primenum]=0
+    for PrimeDivisors in Product:
+        PrimeDivisorDict[PrimeDivisors]=PrimeDivisorDict.get(PrimeDivisors,0)+1
+    return PrimeDivisorDict
+
+
+
+def CalDivisors(num):                                   #Calculate number of different divisors of num.
+    DivisorDict=SortDivisors(num)
+    Divisornum=1
+    for Primenum in DivisorDict:
+        Divisornum*=(DivisorDict.get(Primenum,0)+1)     #Using mathematical method (product of (exponent+1), not numbers hit).
+    return Divisornum
