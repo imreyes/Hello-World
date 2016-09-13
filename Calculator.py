@@ -5,13 +5,13 @@ Created on Mon Sep 12 15:57:19 2016
 @author: GY
 """
 
-#Function groups to mimick a simple calculator. An excercise of Regular Expression.
+#Function groups to mimick a simple calculator; ideally equal to eval(formula). An excercise of Regular Expression.
 
 import re
 
 
 
-#Function to clean up the formula; e.g. 2*-4/-3 (=> --2*4/3) => 2*4/3.
+#Function to clean up the formula; e.g. 2*-4/-3 (=> --2*4/3) => 2*4/3. Note: this function is an alternative method of "re.findall() function not matching '*-' and '\-'", as the latter doesn't work (to my best knowledge).
 def cleanf(formula):
     oprts=re.findall('[\+\-\*\/]{1,2}',formula)             #Get all operators +-*\
     if re.findall('^\d',formula):                           #Ensure the operator position in the beginning; helps simplify the code.
@@ -75,7 +75,7 @@ def pmpdcal(formula):
     oprts=re.findall('[\+\-]',formula)                   #Extract +- operators.
     if len(oprts)<=1:      
         return muldiv(formula)
-    result=0.0                                             #Initiate the sum.
+    result=0.0                                           #Initiate the sum.
     for i in range(len(nums)):
         if oprts[i]=='+':                                #"Translate" operation from character.                      
             result+=muldiv(nums[i])
