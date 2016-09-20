@@ -1,0 +1,180 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Sep 19 14:17:38 2016
+A collection of sorting methods, and test efficiencies of the methods.
+@author: GY
+"""
+
+
+import time
+import random
+
+
+
+#Insertion Sort
+
+def InsertionSort(lst):
+    length=len(lst)
+    i=1                                  #Assuming lst[0] is sorted; inserting from lst[1]
+    while i<length:
+        j=i-1
+        while j>=0:                      #Insert lst[i] into ordered lst[0:i-1].
+            if lst[j]<lst[j-1]:
+                temp=lst[j]
+                lst[j]=lst[j-1]
+                lst[j+1]=temp
+            j-=1
+        i+=1
+
+
+
+#Merge Sort: contains subfunctions of Merge & MergeSort
+
+def Merge(lst,ini,mid,end):                 #Serves to merge-sort 2 sorted sublists.
+    n1=mid-ini+1                            #Size of left sublist.
+    n2=end-mid                              #Size of right sublist.
+    Ll=[lst[ini+i] for i in range(n1)]      #Create left sublist of part of lst.
+    Lr=[lst[mid+i+1] for i in range(n2)]    #Create right sublist of part of lst.
+
+    l=0
+    r=0
+    pos=ini                                 #Inserting position of lst.
+    while l<n1 and r<n2:                    #Merge-sort l & r into corresponding part of lst.
+        if Ll[l]<=Lr[r]:
+            lst[pos]=Ll[l]
+            l+=1
+        else:
+            lst[pos]=Lr[r]
+            r+=1
+        pos+=1
+    if l>=n1:                               #While one of the sublist is all inserted, transfer the rest items in 2nd sublist.
+        while r<n2:
+            lst[pos]=Lr[r]
+            r+=1
+            pos+=1
+    else:
+        while l<n1:
+            lst[pos]=Ll[l]
+            l+=1
+            pos+=1
+
+def MergeSort(lst):                         #Main function.
+    length=len(lst)-1
+    def MSort(lst, ini=0, end=length):      #Get a 'subfunction' to be recurred.
+        if ini<end:
+            mid=int((ini+end)/2)            #Divide the list by 2 sections.
+            MSort(lst,ini,mid)              #Recur the left.
+            MSort(lst,mid+1,end)            #Recur the right.
+            Merge(lst,ini,mid,end)          #Merge-sort the sublists.
+    MSort(lst)
+
+
+
+#Bubble Sort
+
+def BubbleSort(lst):
+    length=len(lst)
+    i=0                                     #Define the bubbling range.
+    while i<length-2:                       #The range should have at least 2 elements.
+        j=length-1                          #Initialize the bubble point.
+        while j>i:
+            if lst[j]<lst[j-1]:             #Exchanges when the before item is larger.
+                temp=lst[j]
+                lst[j]=lst[j-1]
+                lst[j-1]=temp
+            j-=1
+        i+=1
+
+
+#Selection Sort
+
+def SelectionSort(lst):
+    length=len(lst)
+    i=0                                     #Points to the position for i-th smallest item.
+    while i<length-1:
+        j=i                                 #Pointer for comparison.
+        mnm=lst[j]                          #Minimum value initialized.
+        indm=j                              #Position of minimum value initialized.
+        while j<length:                     #Updates minimum value and position when smaller value is found.
+            if mnm>lst[j]:
+                mnm=lst[j]
+                indm=j
+            j+=1
+        lst[indm]=lst[i]                    #Swaps the values of the i-th smallest value to i-th position.
+        lst[i]=mnm
+        i+=1
+
+
+
+
+#Creates a random list of integers.
+
+def randintlist(size):
+    return [random.randint(0,size) for i in range(size)]
+
+
+#Calculate # of inversions (for all i>j with lst[i]<lst[j]) in a list.
+
+def Inversion(lst):
+    inv=0                                   #Initialize inversion counter.
+    length=len(lst)
+    i=0                                     #Initialize the position of the value to compare.
+    while i<length-1:                       #Compare until the last but one value - at least 2 members could make a compare.
+        j=i+1
+        while j<length:
+            if lst[j]<lst[i]:               #Counts inversions.
+                inv+=1
+            j+=1
+        i+=1
+    return inv
+
+
+#Test the time duration of a sorting process in seconds.
+def TimeTest(lst,f):
+    t0=time.clock()                         #Read initial time.
+    f(lst)                                  #Run the sorting function.
+    t1=time.clock()                         #Read final time.
+    return t1-t0                            #Return the time interval.
+
+
+#Test all sorting functions with various length of list; return list of performance time.
+def SizeTest(size):
+    lst=randintlist(size)                   #Creates the random list including 'size' numbers.
+    inv=Inversion(lst)                      #Calculates the inversion of the created random list.
+    lstb=lst                                #For all functions which work with the input list, it's necessary to use a copy of the original list to sort.
+    tb=TimeTest(lstb,BubbleSort)            #Sort the same list instances; return the time spent to sort.
+    lsti=lst
+    ti=TimeTest(lsti,InsertionSort)
+    lstm=lst
+    tm=TimeTest(lstm,MergeSort)
+    lsts=lst
+    ts=TimeTest(lsts,SelectionSort)
+    return [size,inv,tb,ti,tm,ts]           #Return a list of timing info.
+
+
+#Function to evaluate runtime of each sorting function on series of random lists; results are written into a .txt file.
+
+def StdExpRecords():
+    fp='Performance.txt'
+    with open(fp,'a') as f:                 #Create the file to store data.
+        f.write('Size\tInv\.\tBubble_Sort\tInsertion_Sort\tMerge_Sort\tSelection_Sort\n')   #Create the header (didn't bother to use the ljust)
+        for i in range(1,10):
+            result=SizeTest(10*i)           #Run test for lists with 10,20,...90 items.
+            for num in result:
+                f.write(str(num)+'\t')      #Write the results in file: tab to partition; numbers converted to string in order to get written.
+            f.write('\n')                   #Go to next line for the next test.
+        for i in range(1,10):
+            result=SizeTest(100*i)          #Run for 100-900.
+            for num in result:
+                f.write(str(num)+'\t')
+            f.write('\n')
+        for i in range(1,10):
+            result=SizeTest(1000*i)
+            for num in result:
+                f.write(str(num)+'\t')
+            f.write('\n')
+        for i in range(1,10):
+            result=SizeTest(10000*i)
+            for num in result:
+                f.write(str(num)+'\t')
+            f.write('\n')
