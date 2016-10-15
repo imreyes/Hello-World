@@ -1,2 +1,2 @@
-# Hello-World
-Personal practice codes.
+# Python_projects
+Python codes of practices and other projects.
